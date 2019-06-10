@@ -1,8 +1,17 @@
 import React, {Component} from 'react';
-import {Checkbox, Table, Menu, Icon, Form, Drawer, Button, Col, Row, Input, Layout, Breadcrumb} from 'antd';
+import {Checkbox, Table, Menu, Icon, Form, Drawer, Button, Col, Row, Input, Layout, Breadcrumb,Card} from 'antd';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 import './App.css';
+//import echartTheme from './../themeLight'
 import reqwest from 'reqwest';
+import echarts from 'echarts/lib/echarts'
+import 'echarts/lib/chart/line';  //折线图是line,饼图改为pie,柱形图改为bar
+import 'echarts/lib/component/tooltip';
+import 'echarts/lib/component/title';
+import 'echarts/lib/component/legend';
+import 'echarts/lib/component/markPoint';
+import ReactEcharts from 'echarts-for-react';
 
 const {SubMenu} = Menu;
 const {Header, Content, Sider} = Layout;
@@ -20,6 +29,26 @@ function hasErrors(fieldsError) {
  * the search bar
  * copied from antd
  */
+function search_function() {
+  // 声明变量
+  var input, filter, table, tr, td, i;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+
+  // 循环表格每一行，查找匹配项
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    } 
+  }
+}
 class HorizontalSearchForm extends React.Component {
     componentDidMount() {
         // To disabled submit button at the beginning.
@@ -48,7 +77,7 @@ class HorizontalSearchForm extends React.Component {
                             rules: [{required: true, message: 'Please input your username!'}],
                         })(
                             <Input
-                                prefix={<Icon type="search" style={{color: 'rgba(0,0,0,.25)'}}/>}
+                                prefix={<Icon type="search" onkeyup="search_function()" style={{color: 'rgba(0,0,0,.25)'}}/>}
                                 placeholder="Search by code"
                             />,
                         )}
@@ -126,6 +155,7 @@ class DrawerForm extends React.Component {
                                 </div>
                             </Col>
                             <Col span={16}>
+                            
                                 <Form.Item label="Name to code">
                                     {getFieldDecorator('name', {
                                         rules: [{required: true, message: 'Please enter stock name'}],
@@ -140,6 +170,7 @@ class DrawerForm extends React.Component {
                                 </div>
                             </Col>
                             <Col span={16}>
+                                
                                 <Form.Item label="Code to name">
                                     {getFieldDecorator('name', {
                                         rules: [{required: true, message: 'Please enter stock code'}],
@@ -325,41 +356,6 @@ class StockInformation extends Component {
  */
 class App extends Component {
 
-    state = {
-        data: [],
-        loading: false
-    };
-
-    /**
-     * fetch JSON data
-     */
-    fetch = () => {
-        this.setState({loading: true});
-        reqwest({
-            url: '/stock_data.json',
-            method: 'get',
-            type: 'json',
-        }).then(data => {
-            this.setState({
-                loading: false,
-                data: data.results,
-            });
-        });
-    };
-
-    /* this function could be used write click events to console */
-    // handleClick = e => {
-    //     console.log('click ', e);
-    // };
-
-    componentDidMount() {
-        this.fetch();
-    }
-
-    handlePageChange = (page) => {
-        //TODO: switch between pages
-
-    };
 
     /* this function is passed to ResultTable
      * used to simulate database change
@@ -391,15 +387,9 @@ class App extends Component {
     render() {
         /* just enum in JS */
         /* the pages */
-        var PageEnum = Object.freeze({
-            "PanelStocksInformation": 1,
-            "PanelAccountInformation": 2,
-            "PanelAccountUpgrade": 3,
-            "About": 4
-        });
-
         return (
             /* layout */
+            <Router>
             <Layout>
                 <Header className="header">
                     <div className="logo"/>
@@ -409,11 +399,11 @@ class App extends Component {
                         defaultSelectedKeys={['1']}
                         style={{lineHeight: '64px'}}
                     >
-                        <Menu.Item key="1" onClick={this.handlePageChange(PageEnum.PanelStocksInformation)}>
-                            Panel
+                        <Menu.Item key="1">
+                            <Link to={`/panel/stocks/all`}>Panel</Link>
                         </Menu.Item>
-                        <Menu.Item key="2" onClick={this.handlePageChange(PageEnum.About)}>
-                            About
+                        <Menu.Item key="4">
+                            <Link to={`/about`}>About</Link>
                         </Menu.Item>
                     </Menu>
                 </Header>
@@ -429,18 +419,22 @@ class App extends Component {
                                 key="sub1"
                                 title={<span> <Icon type={"search"}/>Stocks</span>}
                             >
-                                <Menu.Item key="1" onClick={this.handlePageChange(PageEnum.PanelStocksInformation)}>Show
-                                    all</Menu.Item>
+                                <Menu.Item key="1">
+                                    <Link to={`/panel/stocks/all`}>Show all</Link>
+                                </Menu.Item>
+                                <Menu.Item key="5">
+                                    <Link to={`/panel/stocks/Kline`}>K-line</Link>
+                                </Menu.Item>
                             </SubMenu>
                             <SubMenu
                                 key="sub2"
                                 title={<span> <Icon type="user"/>Account</span>}
                             >
-                                <Menu.Item key="2" onClick={this.handlePageChange(PageEnum.PanelAccountInformation)}>
-                                    Information
+                                <Menu.Item key="2">
+                                    <Link to={`/panel/account/info`}>Information</Link>
                                 </Menu.Item>
-                                <Menu.Item key="3" onClick={this.handlePageChange(PageEnum.PanelAccountUpgrade)}>
-                                    Upgrade
+                                <Menu.Item key="3">
+                                    <Link to={`/panel/account/upgrade`}>Upgrade</Link>
                                 </Menu.Item>
                             </SubMenu>
                         </Menu>
@@ -459,18 +453,167 @@ class App extends Component {
                                 minHeight: 280,
                             }}
                         >
-                            {/* Panel / Stocks / Show all */}
-                            <StockInformation
-                                data={this.state.data}
-                                loading={this.state.loading}
-                            />
+                                <Route exact path="/" component={showPanelStockInformation} />
+                                <Route exact path="/panel/stocks/all"  component={showPanelStockInformation} />
+                                <Route exact path="/panel/stocks/kline"  component={showKline} />
+                                <Route exact path="/panel/account/info" component={showPanelAccountInformation} />
+                                <Route exact path="/panel/account/upgrade" component={showPanelAccountUpgrade} />
+                                <Route exact path="/about" component={showAbout} />
                         </Content>
                     </Layout>
                 </Layout>
             </Layout>
+            </Router>
 
         );
     }
 }
+
+class PanelStockInformation extends Component{
+    constructor(props) {
+        super(props);
+    }
+
+    state = {
+        data: [],
+        loading: false
+    };
+
+    /**
+     * fetch JSON data
+     */
+    fetch = () => {
+        this.setState({loading: true});
+        reqwest({
+            url: '/stock_data.json',
+            method: 'get',
+            type: 'json',
+        }).then(data => {
+            this.setState({
+                loading: false,
+                data: data.results,
+            });
+        });
+    };
+
+    /* this function could be used write click events to console */
+    // handleClick = e => {
+    //     console.log('click ', e);
+    // };
+
+    componentDidMount() {
+        this.fetch();
+    }
+
+    render() {
+        return (
+            <StockInformation
+                data={this.state.data}
+                loading={this.state.loading}
+            />
+        );
+    }
+}
+
+function showPanelStockInformation() { return new PanelStockInformation(); }
+
+class Kline extends Component{
+    state = {
+        data: []
+        
+    };
+    componentWillMount(){
+        //主题的设置要在willmounted中设置
+        echarts.registerTheme('Imooc');
+      }
+      getOption =()=> {
+        let option = {
+          title:{
+            text:'stock price',
+            x:'center'
+          },
+          tooltip:{
+            trigger:'axis',
+          },
+          xAxis:{
+            data:['1:00','2:00','3:00','4:00','5:00','6:00','7:00']
+          },
+          yAxis:{
+            type:'value'
+          },
+          series:[
+            {
+              name:'OFO订单量',
+              type:'line',   //这块要定义type类型，柱形图是bar,饼图是pie
+              data:[1000,2000,1500,3000,2000,1200,800]
+              
+            }
+          ]
+        }
+       return option
+      }
+    
+      render(){
+        return(
+          <div>
+            <Card title="K-Line">
+                <ReactEcharts option={this.getOption()} theme="Imooc"  style={{height:'400px'}}/>
+            </Card>
+    
+          </div>
+        )
+      }
+
+}
+function showKline() { return new Kline(); }
+
+//TODO
+class PanelAccountInformation extends Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <div>
+
+
+            </div>
+        );
+    }
+}
+
+function showPanelAccountInformation() { return new PanelAccountInformation(); }
+
+class PanelAccountUpgrade extends Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return (
+            <div></div>
+        );
+    }
+}
+
+function showPanelAccountUpgrade() { return new PanelAccountUpgrade(); }
+
+class About extends Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <div>
+                
+            </div>
+        );
+    }
+}
+
+function showAbout() { return new About(); }
+
+//TODO
 
 export default App;

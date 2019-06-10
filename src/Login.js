@@ -11,7 +11,12 @@ class NormalLoginForm extends React.Component {
             }
         });
     };
-
+    
+    login = () => {
+        this.setState({
+            visible: true,
+        });
+    };
     render() {
         const { getFieldDecorator } = this.props.form;
         return (
@@ -46,7 +51,9 @@ class NormalLoginForm extends React.Component {
                         <a className="login-form-forgot" href="">
                             Forgot password
                         </a>
-                        <Button type="primary" htmlType="submit" className="login-form-button">
+                        <Button type="primary" htmlType="submit" className="login-form-button"
+                        onClick={this.login}
+                        >
                             Log in
                         </Button>
                         Or <a href="">register now!</a>

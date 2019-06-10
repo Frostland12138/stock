@@ -1,0 +1,20 @@
+{
+    "results": [
+      {
+        "stock_id": "000776",
+        "stock_name": "广发证券",
+        "stock_price": "13.90",
+        "upper_limit": "50",
+        "lower_limit": "4",
+        "stock_state": "1"
+      },
+      {
+        "stock_id": "000988",
+        "stock_name": "中国银行",
+        "stock_price": "3.73",
+        "upper_limit": "0",
+        "lower_limit": "0",
+        "stock_state": "0"
+      }
+    ]
+  }

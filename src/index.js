@@ -3,8 +3,10 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import WrappedNormalLoginForm from './Login'
+import WrappedNormalSignupForm from './signup'
 import * as serviceWorker from './serviceWorker';
 
+//ReactDOM.render(<WrappedNormalSignupForm />, document.getElementById('root'));
 //ReactDOM.render(<WrappedNormalLoginForm />, document.getElementById('root'));
 ReactDOM.render(<App />, document.getElementById('root'));
 
